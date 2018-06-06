@@ -1,0 +1,12 @@
+[[source]]
+verify_ssl = true
+url = "https://pypi.org/simple"
+name = "pypi"
+
+[dev-packages]
+
+[packages]
+pyserial = ">=3.3"
+
+[requires]
+python_version = "3.5"
