@@ -1,5 +1,6 @@
 #!/bin/sh
 
+## ${PROGNAME} version ###VERSION###
 ## Usage: ${PROGNAME} [-h] | { [-c|--config-file <FILE>]
 ##        ${PROGPADD}          [-s|--state-server <URL>]
 ##        ${PROGPADD}          [-i|--systemid <ID>]
