@@ -9,6 +9,6 @@ tests:
 	bats ./tests
 
 clean:
-	rm -f .output.*
+	rm -f .output.* .conf
 
 .PHONY: tests
