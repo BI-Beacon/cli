@@ -6,6 +6,8 @@ env:
     - secure: WnND6iTMTgfUZZQN9snAlNidtSKmardMG1FYLNNJ7hGQrvH62xf0BvFxSQGOn1I/gP9nFotfHE3/rBU5CHaNdXZySi9sUHngJsH8CV+4yrXL0Wcm6tgyzhtwV3BhvAvQ5Ti0K1ICJTgCLynGuRX/cKoVT1CaIE5O4rLtZIFJ+o4+lhQdnTq7sjCZ7ffvxlhmtj3gp5vgrIDNe7mD8jo2KYA9YJABs87EYSGaUq1fdBW6QtpK8Z5Vovnsz7S7eGlq8B83UsPCoARYyG9E5nkKjj1qkIFaizaqdNnWPzZ7LuXZm/+0LNpHtoMN8soYn+B1uXQGSugmfn+37JkYXnQOkgSry5E0xGlPYb83cw2UMKsrWGZEsKRKkhkzY7ZqXH1r4oRYVQ1msP33CU161mCqREaAjr6zfJRzARRlHx3qvqJjXmHsg/3ysTnUCKqyWVXqdgCibgPU3C9oQk3a/6iv0JFvgRZRPiG//yyJhV2RBy79qpz3WQpCOn95V3U7GHFYGGunQneh/GK3DLxvXYuPbrBIEp5thvBPr4hyjy0a3ZPlSPwYZZHEhBX+X7qBx+0e2AcPIr+mMSO2EapFTl3tfK/yNhDZEPe8PdNdtYQZQO+/B5Eq56ZbnNknmvAzsiQAV66oEUyI/UO8qr8Uue1zozTtVABRdqD68STBBaXOUWc=
 
 install:
+  - sudo add-apt-repository ppa:duggan/bats
+  - sudo apt-get update
   - sudo apt-get install -y shellcheck bats
 
 script:
