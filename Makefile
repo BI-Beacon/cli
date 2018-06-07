@@ -11,6 +11,6 @@ tests:
 	BATS_SHELL=dash bats ./tests
 
 clean:
-	rm -f .output.* .conf *~ .*~ .\#* \#*\#
+	rm -rf .output.* .conf *~ .*~ .\#* \#*\#
 
 .PHONY: tests

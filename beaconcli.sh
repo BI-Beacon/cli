@@ -102,7 +102,7 @@ fi
 usage_examples() {
     PROGNAME="${program_path##*/}"
     cat <<EOF
-   Usage examples:
+Usage examples:
 
      \$ ${PROGNAME} -i my.system.id 550055
      \$ ${PROGNAME} -s https://we.corp.eu/cilamp/api/v1 \\

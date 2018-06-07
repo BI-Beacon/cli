@@ -1,11 +1,9 @@
 #!/usr/bin/env bats
 # -*- mode: sh -*-
 
-@test "Invalid characters in systemid should fail" {
-      run ${BATS_SHELL} ./beaconcli.sh -i "${CHAR}" 00c01a
-      [ $status -eq 1 ]
-      echo "[$output]"
-      EXPECTED ="Error: Systemid contains invalid characters*"
-      [[ "${lines[0]}" =~ $EXPECTED ]]
-  done
+@test "Examples should produce output" {
+    run ${BATS_SHELL} ./beaconcli.sh --examples
+    [ $status -eq 0 ]
+    EXPECTED="Usage examples:*"
+    [[ "${lines[0]}" =~ ${EXPECTED} ]]
 }
