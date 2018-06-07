@@ -15,6 +15,7 @@ INVALID_CHARS=": / + ; . Ã¤"   # [a-zA-Z0-9_-]+
 @test "Invalid color should fail" {
     for CHAR in ${INVALID_CHARS} ; do
         run ${BATS_SHELL} ./beaconcli.sh -i 0xdeadbeef ff0${CHAR}ff
+       echo "[[[${lines[0]}]]]"
         [ $status -eq 1 ]
         [ "${lines[0]}" = "Error: color contains invalid characters." ]
     done

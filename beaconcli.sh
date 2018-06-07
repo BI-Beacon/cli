@@ -6,7 +6,7 @@
 ##        ${PROGPADD}          [-i|--systemid <ID>]
 ##        ${PROGPADD}          [-X|--extra <DATA>]
 ##        ${PROGPADD}          <color>[,<period>] }
-##        ${PROGNAME} [--examples]
+##        ${PROGNAME} [--examples] | [--version]
 ## 
 ##  Tool for setting the state of a given beacon systemid.
 ##
@@ -26,7 +26,6 @@
 ##          state_server = https://server.bi-beacon.se/api/v1/
 ##          systemid = 0xdeadbeef
 ##          ----------------------------------------------------------
-##          (Default value: '${CONFIG_FILE}'.)
 ## 
 ##   -s, --state-server <URL>
 ##          The URL of the state server.
@@ -122,6 +121,7 @@ while [ "$#" -gt 0 ] ; do
         -X|--extra) EXTRAS="${EXTRAS} $2" ; shift ;;
         --examples) usage_examples ; exit 0 ;;
         -h|--help) usage ; exit 0 ;;
+        -v|--version) echo "###VERSION###" ; exit 0 ;;
         -*) echo "Error: Unknown option '$1'." 1>&2 ; exit 1 ;;
         *) COLOR="$1" ; shift ;;
     esac
