@@ -8,5 +8,5 @@
 @test "No arguments should result in usage guide." {
     run ${BATS_SHELL} ./beaconcli.sh
     EXPECT="Usage:*"
-    [[ "${lines[0]}" =~ ${EXPECT} ]]
+    [[ "${lines[1]}" =~ ${EXPECT} ]]
 }
