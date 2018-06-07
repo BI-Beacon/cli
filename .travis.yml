@@ -10,9 +10,8 @@ install:
 script:
   - make tests
 
-deploy:
-  - provider: script
-    script: bash dist/publish-artifacts.sh
+after_success:
+  - dist/publish-artifacts.sh
     on:
       branch: master
 
