@@ -6,6 +6,7 @@ tests:
 	! ksh beaconcli.sh  > .output.ksh 2>&1
 	! dash beaconcli.sh > .output.dash 2>&1
 	diff3 .output.bash .output.ksh .output.dash
+	bats ./tests
 
 clean:
 	rm -f .output.*
