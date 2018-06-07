@@ -1,4 +1,5 @@
 #!/usr/bin/env bats
+# -*- mode: sh -*-
 
 @test "No systemid set should fail" {
   run  ${BATS_SHELL} ./beaconcli.sh ff00ff

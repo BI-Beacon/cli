@@ -1,11 +1,12 @@
 #!/bin/sh
 
 ## Usage: ${PROGNAME} [-h] | { [-c|--config-file <FILE>]
-##        ${PROGNAME}          [-s|--state-server <URL>]
+##        ${PROGPADD}          [-s|--state-server <URL>]
 ##        ${PROGPADD}          [-i|--systemid <ID>]
 ##        ${PROGPADD}          [-X|--extra <DATA>]
-##        ${PROGPADD}          <colour>[,<period>] }
-##
+##        ${PROGPADD}          <color>[,<period>] }
+##        ${PROGNAME} [--examples]
+## 
 ##  Tool for setting the state of a given beacon systemid.
 ##
 ##   -h, --help
@@ -39,20 +40,13 @@
 ##   -X, --extra <DATA>
 ##          Send additional data to the server.
 ##
-##   <colour>[,<period>]
-##          The colour to set the given systemid to. If the additional
+##   <color>[,<period>]
+##          The color to set the  given systemid to. If the additional
 ##          argument <period>  is given,  the beacon will  pulsate the
-##          given   colour   with   the  specified   periodicity   (in
+##          given   color   with   the   specified   periodicity   (in
 ##          milliseconds).
 ##
-##          The format of <colour> is [#]<RR><GG><BB>.
-##
-##
-##   Usage examples:
-##
-##     \$ ${PROGNAME} -i my.system.id 550055
-##     \$ ${PROGNAME} -s https://we.corp.eu/cilamp/api/v1 \\
-##                    -i my.system.id FF0000,3000
+##          The format of <color> is [#]<RR><GG><BB>.
 ##
 ##   Unless  a configuration  file  is specified  on the  command-line
 ##   (using the  -c option),  we will  read the  contents of  the file
@@ -100,15 +94,33 @@ usage() {
     . /tmp/.help.$$ ; rm /tmp/.help.$$
 }
 
+if [ "$#" -lt 1 ] ; then
+    usage
+    exit 1
+fi
+
+usage_examples() {
+    PROGNAME="${program_path##*/}"
+    cat <<EOF
+   Usage examples:
+
+     \$ ${PROGNAME} -i my.system.id 550055
+     \$ ${PROGNAME} -s https://we.corp.eu/cilamp/api/v1 \\
+                    -i my.system.id FF0000,3000
+
+EOF
+}
+
 # Parse command line options:
 while [ "$#" -gt 0 ] ; do
     case "$1" in
         -c|--config-file) CONFIG_FILE="$2" ; shift 2 ;;
         -i|--systemid) SYSTEMID="$2" ; shift 2 ;;
         -X|--extra) EXTRAS="${EXTRAS} $2" ; shift ;;
+        --examples) usage_examples ; exit 0 ;;
         -h|--help) usage ; exit 0 ;;
-        -*) echo "Error: Unknown option '$1'." 1>&2 ; usage ; exit 1 ;;
-        *) COLOUR="$1" ; shift ;;
+        -*) echo "Error: Unknown option '$1'." 1>&2 ; exit 1 ;;
+        *) COLOR="$1" ; shift ;;
     esac
 done
 
@@ -116,17 +128,9 @@ done
 if [ ! -z "${CONFIG_FILE}" ] ; then
     if [ ! -r "${CONFIG_FILE}" ] ; then
         echo "Error: Given configuration file \`${CONFIG_FILE}' isn't readable." 1>&2
-        usage
         exit 1
     fi
     attempt_read_config "${CONFIG_FILE}"
-fi
-
-# Sanity check that colour has been set:
-if [ -z "${COLOUR}" ] ; then
-    echo "Error: Colour must be set on the command-line." 1>&2
-    usage
-    exit 1
 fi
 
 SYSTEMID="${SYSTEMID-${CONF_SYSTEMID}}"
@@ -134,9 +138,15 @@ STATE_SERVER="${STATE_SERVER-${CONF_STATESRV}}"
 
 # Sanity check on systemid:
 if [ -z "${SYSTEMID}" ] ; then
-    echo "Error: Systemid must be set."
-    usage
+    echo "Error: Systemid must be set." 1>&2
     exit 1
+else
+    # shellcheck disable=SC2001
+    REST="$(echo "${SYSTEMID}" | sed 's#[a-zA-Z0-9_-]##g')"
+    if [ ! -z "${REST}" ] ; then
+        echo "Error: Systemid contains invalid characters. \`${REST}'" 1>&2
+        exit 1
+    fi
 fi
 
 # Sanity check for 'curl' binary.
@@ -154,11 +164,26 @@ install it by typing:
   $ sudo yum install curl
 
 EOF
+    exit 1
 )
 
-COLOUR="${COLOUR},0"
-PERIOD="${COLOUR#*,}"
-PERIOD="${PERIOD%,*}"
-COLOUR="${COLOUR%%,*}"
+# Sanity check on the color and period argument(s).
+if [ -z "${COLOR}" ] ; then
+    echo "Error: Color must be set on the command-line." 1>&2
+    exit 1
+fi
 
-curl -F "color=${COLOUR}" -F "period=${PERIOD}" "${STATE_SERVER}/${SYSTEMID}/"
+COLOR="${COLOR},0"
+PERIOD="${COLOR#*,}"
+PERIOD="${PERIOD%,*}"
+COLOR="${COLOR%%,*}"
+
+# shellcheck disable=SC2001
+if [ ! -z "$(echo "${COLOR}" | sed 's#[a-zA-Z0-9_-]##g')" ] ; then
+    echo "Error: color contains invalid characters." 1>&2
+    usage
+    exit 1
+fi
+
+
+curl -F "color=${COLOR}" -F "period=${PERIOD}" "${STATE_SERVER}/${SYSTEMID}/"
