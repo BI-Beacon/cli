@@ -14,4 +14,6 @@ tests:
 clean:
 	rm -rf .output.* .conf *~ .*~ .\#* \#*\#
 
+print-%  : ; @echo $($*)
+
 .PHONY: tests clean
