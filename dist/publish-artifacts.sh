@@ -15,7 +15,7 @@ if [ "${TRAVIS_BRANCH}" == "master" ] ; then
 
     cd "${TMPDR}"
     find . -type f | xargs sha1sum | sort -k+2 > SHA1SUMS
-    git add cli/install-sh cli/beaconcli
+    git add cli/install-sh cli/beaconcli SHA1SUMS
     git commit -m 'Automated build' .
     git push
 fi

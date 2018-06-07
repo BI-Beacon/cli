@@ -108,6 +108,8 @@ Usage examples:
      \$ ${PROGNAME} -s https://we.corp.eu/cilamp/api/v1 \\
                     -i my.system.id FF0000,3000
 
+
+Blame (most) bugs on: Martin Kjellstrand <martin.kjellstrand@madworx.se>.
 EOF
 }
 
