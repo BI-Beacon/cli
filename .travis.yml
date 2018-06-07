@@ -10,9 +10,6 @@ install:
 script:
   - make tests
 
-after_success:
-  - dist/publish-artifacts.sh
-
 before_install:
   - curl -F "period=5000" -F "color=#AB00FF" "https://api.cilamp.se/v1/${BI_BEACON_SYSTEM_ID}/"
 
@@ -20,6 +17,7 @@ before_script:
   - curl -F "period=5000" -F "color=#0000FF" "https://api.cilamp.se/v1/${BI_BEACON_SYSTEM_ID}/"
 
 after_success:
+  - dist/publish-artifacts.sh
   - curl -F "color=#00FF00" "https://api.cilamp.se/v1/${BI_BEACON_SYSTEM_ID}/"
 
 after_failure:
