@@ -149,6 +149,16 @@ else
     fi
 fi
 
+SYSTEMID="${SYSTEMID-${CONF_SYSTEMID}}"
+STATE_SERVER="${STATE_SERVER-${CONF_STATESRV}}"
+
+# Sanity check on systemid:
+if [ -z "${SYSTEMID}" ] ; then
+    echo "Error: Systemid must be set."
+    usage
+    exit 1
+fi
+
 # Sanity check for 'curl' binary.
 which curl >/dev/null 2>&1 || (
     cat 1>&2 <<EOF

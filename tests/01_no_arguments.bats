@@ -5,7 +5,7 @@
   ! ${BATS_SHELL} ./beaconcli.sh
 }
 
-@test "No arguments should result in correct error message." {
+@test "No arguments should result in usage guide." {
     run ${BATS_SHELL} ./beaconcli.sh
     EXPECT="Usage:*"
     [[ "${lines[0]}" =~ ${EXPECT} ]]
