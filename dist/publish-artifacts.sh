@@ -3,7 +3,7 @@
 if [ "${TRAVIS_BRANCH}" == "master" ] ; then
     TMPDR="$(mktemp -d)"
 
-    sed -e "s%###VERSION###$(date +%Y%m%d)-$(git rev-parse master | cut -c1-7)##%" \
+    sed -e "s%###VERSION###%$(date +%Y%m%d)-$(git rev-parse master | cut -c1-7)%" \
         -i dist/beaconcli.sh
 
     ./dist/make-install-sh.sh
