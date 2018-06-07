@@ -2,6 +2,8 @@
 
 set -x
 
+set
+
 TMPDR="$(mktemp -d)"
 
 ./dist/make-install-sh.sh
