@@ -1,6 +1,6 @@
 all:	tests
 
-TEST_SHELLS := posh bash dash ksh mksh zsh
+TEST_SHELLS := posh bash dash ksh mksh zsh fizsh
 
 tests:
 	shellcheck -s ksh beaconcli.sh
@@ -14,6 +14,7 @@ tests:
 clean:
 	rm -rf .output.* .conf *~ .*~ .\#* \#*\#
 
-print-%  : ; @echo $($*)
+print-%: ; @echo $($*)
 
-.PHONY: tests clean
+.PHONY: tests clean print-%
+
