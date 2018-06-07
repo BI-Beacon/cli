@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 @test "No arguments should fail." {
-  !  ${BATS_SHELL} ./beaconcli.sh
+  ! ${BATS_SHELL} ./beaconcli.sh
 }
 
 @test "No arguments should result in correct error message." {
