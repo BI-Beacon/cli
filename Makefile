@@ -10,7 +10,8 @@ tests:
 	  BATS_SHELL=$$SHELL bats ./tests ; \
     done
 	sha1sum .output.* | awk '{print $$1}' | sort | uniq | wc -l | xargs test 1 ==
+
 clean:
 	rm -rf .output.* .conf *~ .*~ .\#* \#*\#
 
-.PHONY: tests
+.PHONY: tests clean
