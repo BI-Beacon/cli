@@ -63,9 +63,12 @@
 attempt_read_config() {
     if [ -r "$1" ] ; then
         # shellcheck disable=SC1117
-        : "${SYSTEMID:=$(awk -F"[\t ]*=[\t ]*" '$1 = /systemid/ { print $2 }' "$1")}"
+        READ_SYSTEMID=$(awk -F"[\t ]*=[\t ]*" '$1 = /systemid/ { print $2 }' "$1")
         # shellcheck disable=SC1117
-        : "${STATE_SERVER:=$(awk -F"[\t ]*=[\t ]*" '$1 = /state_server/ { print $2 }' "$1")}"
+        READ_STATESRV=$(awk -F"[\t ]*=[\t ]*" '$1 = /state_server/ { print $2 }' "$1")
+        
+        CONF_SYSTEMID="${READ_SYSTEMID:=$CONF_SYSTEMID}"
+        CONF_STATESRV="${READ_STATESRV:=$CONF_STATESRV}"
     fi
 }
 
@@ -78,8 +81,6 @@ attempt_read_config "${CONFIG_FILE_USER}"
 
 
 # Our default values:
-: "${SYSTEMID:=}"
-: "${CONFIG_FILE:=}"
 : "${STATE_SERVER:=https://api.cilamp.se/v1}"
 
 #
@@ -118,11 +119,22 @@ if [ ! -z "${CONFIG_FILE}" ] ; then
         usage
         exit 1
     fi
+    attempt_read_config "${CONFIG_FILE}"
 fi
 
 # Sanity check that colour has been set:
 if [ -z "${COLOUR}" ] ; then
     echo "Error: Colour must be set on the command-line." 1>&2
+    usage
+    exit 1
+fi
+
+SYSTEMID="${SYSTEMID-${CONF_SYSTEMID}}"
+STATE_SERVER="${STATE_SERVER-${CONF_STATESRV}}"
+
+# Sanity check on systemid:
+if [ -z "${SYSTEMID}" ] ; then
+    echo "Error: Systemid must be set."
     usage
     exit 1
 fi
