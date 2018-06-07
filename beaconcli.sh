@@ -12,9 +12,9 @@
 ##          Display this helpful usage information
 ##
 ##   -c, --config-file <FILE>
-##          Use  this configuration  file.   The file  format for  the
-##          configuration file  is a  simple flat file  with key-value
-##          pairs, delimitered by the equals (=) sign.
+##          Read additional  configuration from  this file.   The file
+##          format for  the configuration file  is a simple  flat file
+##          with key-value pairs, delimitered by the equals (=) sign.
 ##  
 ##          Currently, only two options can be set, "state_server" and
 ##          "systemid".
@@ -24,9 +24,6 @@
 ##          state_server = https://server.bi-beacon.se/api/v1/
 ##          systemid = 0xdeadbeef
 ##          ----------------------------------------------------------
-##
-##          If  this argument  is used,  no other  configuration files
-##          will be read.
 ##          (Default value: '${CONFIG_FILE}'.)
 ## 
 ##   -s, --state-server <URL>
@@ -48,17 +45,42 @@
 ##          given   colour   with   the  specified   periodicity   (in
 ##          milliseconds).
 ##
+##          The format of <colour> is [#]<RR><GG><BB>.
+##
+##
+##   Usage examples:
+##
+##     \$ ${PROGNAME} -i my.system.id 550055
+##     \$ ${PROGNAME} -s https://we.corp.eu/cilamp/api/v1 \\
+##                    -i my.system.id FF0000,3000
 ##
 ##   Unless  a configuration  file  is specified  on the  command-line
 ##   (using the  -c option),  we will  read the  contents of  the file
-##   /etc/bi-beacon.conf if it exists, as well as ~/.bi-beacon.conf.
+##   ${CONFIG_FILE_SYSTEM} if it exists, as well as ${CONFIG_FILE_USER}.
 ##
 ## Blame (most) bugs on: Martin Kjellstrand <martin.kjellstrand@madworx.se>.
 
+attempt_read_config() {
+    if [ -r "$1" ] ; then
+        # shellcheck disable=SC1117
+        : "${SYSTEMID:=$(awk -F"[\t ]*=[\t ]*" '$1 = /systemid/ { print $2 }' "$1")}"
+        # shellcheck disable=SC1117
+        : "${STATE_SERVER:=$(awk -F"[\t ]*=[\t ]*" '$1 = /state_server/ { print $2 }' "$1")}"
+    fi
+}
+
+# Non-user configurable defaults:
+CONFIG_FILE_SYSTEM="/etc/bi-beacon.conf"
+CONFIG_FILE_USER="${HOME}/.bi-beacon.conf"
+
+attempt_read_config "${CONFIG_FILE_SYSTEM}"
+attempt_read_config "${CONFIG_FILE_USER}"
+
+
 # Our default values:
-SYSTEMID=""
-CONFIG_FILE=""
-STATE_SERVER="https://api.cilamp.se/v1"
+: "${SYSTEMID:=}"
+: "${CONFIG_FILE:=}"
+: "${STATE_SERVER:=https://api.cilamp.se/v1}"
 
 #
 # Print the usage  of this tool. Extracts this  documentation from the
@@ -67,17 +89,20 @@ STATE_SERVER="https://api.cilamp.se/v1"
 program_path="$0"
 usage() {
     export PROGNAME="${program_path##*/}"
+    # shellcheck disable=SC2001
     PROGPADD="$(echo "${PROGNAME}" | sed 's#.# #g')"
     export PROGPADD
     (echo "cat <<EOT"
      sed -n 's/^## \?//p' < "${program_path}"
-     echo "EOT") > /tmp/.help.$$ ; . /tmp/.help.$$ ; rm /tmp/.help.$$
+     echo "EOT") > /tmp/.help.$$
+    # shellcheck disable=SC1090
+    . /tmp/.help.$$ ; rm /tmp/.help.$$
 }
 
 # Parse command line options:
 while [ "$#" -gt 0 ] ; do
     case "$1" in
-        -c|--config_file) CONFIG_FILE="$2" ; shift 2 ;;
+        -c|--config-file) CONFIG_FILE="$2" ; shift 2 ;;
         -i|--systemid) SYSTEMID="$2" ; shift 2 ;;
         -X|--extra) EXTRAS="${EXTRAS} $2" ; shift ;;
         -h|--help) usage ; exit 0 ;;
@@ -86,18 +111,21 @@ while [ "$#" -gt 0 ] ; do
     esac
 done
 
+# If config-file is set, it must be readable:
+if [ ! -z "${CONFIG_FILE}" ] ; then
+    if [ ! -r "${CONFIG_FILE}" ] ; then
+        echo "Error: Given configuration file \`${CONFIG_FILE}' isn't readable." 1>&2
+        usage
+        exit 1
+    fi
+fi
+
 # Sanity check that colour has been set:
 if [ -z "${COLOUR}" ] ; then
     echo "Error: Colour must be set on the command-line." 1>&2
     usage
     exit 1
 fi
-
-COLOUR="${COLOUR},0"
-PERIOD="${COLOUR#*,}"
-PERIOD="${PERIOD%,*}"
-COLOUR="${COLOUR%%,*}"
-COLOURSTR="-F color=${COLOUR} -F period=${PERIOD}"
 
 # Sanity check for 'curl' binary.
 which curl >/dev/null 2>&1 || (
@@ -116,4 +144,9 @@ install it by typing:
 EOF
 )
 
-curl ${COLOURSTR} "${STATE_SERVER}/${SYSTEMID}/"
+COLOUR="${COLOUR},0"
+PERIOD="${COLOUR#*,}"
+PERIOD="${PERIOD%,*}"
+COLOUR="${COLOUR%%,*}"
+
+curl -F "color=${COLOUR}" -F "period=${PERIOD}" "${STATE_SERVER}/${SYSTEMID}/"
