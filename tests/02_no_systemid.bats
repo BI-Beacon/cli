@@ -10,7 +10,6 @@
   echo "systemid = donaldduck" > .conf
   run ./beaconcli.sh -c .conf -i "" ff00ff
   rm .conf
-  echo $output
   [ $status -eq 1 ]
   [ "${lines[0]}" = "Error: Systemid must be set." ]
 }
