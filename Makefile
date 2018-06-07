@@ -1,6 +1,6 @@
 all:	tests
 
-TEST_SHELLS := posh bash dash ksh mksh zsh fizsh
+TEST_SHELLS := posh bash dash ksh mksh zsh
 
 tests:
 	shellcheck -s ksh beaconcli.sh
