@@ -3,12 +3,12 @@
 ## ${PROGNAME} version ###VERSION###
 ## Usage: ${PROGNAME} [-h] | { [-c|--config-file <FILE>]
 ##        ${PROGPADD}          [-s|--state-server <URL>]
-##        ${PROGPADD}          [-i|--systemid <ID>]
+##        ${PROGPADD}          [-k|--channelkey <KEY>]
 ##        ${PROGPADD}          [-X|--extra <DATA>]
 ##        ${PROGPADD}          <color>[,<period>] }
 ##        ${PROGNAME} [--examples] | [--version]
 ## 
-##  Tool for setting the state of a given beacon systemid.
+##  Tool for setting the state of a given beacon channelkey.
 ##
 ##   -h, --help
 ##          Display this helpful usage information
@@ -19,29 +19,29 @@
 ##          with key-value pairs, delimitered by the equals (=) sign.
 ##  
 ##          Currently, only two options can be set, "state_server" and
-##          "systemid".
+##          "channelkey".
 ##
 ##          Example:
 ##          ----------------------------------------------------------
 ##          state_server = https://server.bi-beacon.se/api/v1/
-##          systemid = 0xdeadbeef
+##          channelkey = 0123456789abcdefghij
 ##          ----------------------------------------------------------
 ## 
 ##   -s, --state-server <URL>
 ##          The URL of the state server.
 ##          (Default value: '${STATE_SERVER}'.)
 ##
-##   -i, --systemid <ID>
-##          Chooses which systemid to set  the state for. The systemid
+##   -k, --channelkey <KEY>
+##          Chooses which channelkey to set  the state for. The channelkey
 ##          must  be set,  either  via configuration  file  or on  the
 ##          command line.
-##          (Default value: '${SYSTEMID}'.)
+##          (Default value: '${channelkey}'.)
 ##
 ##   -X, --extra <DATA>
 ##          Send additional data to the server.
 ##
 ##   <color>[,<period>]
-##          The color to set the  given systemid to. If the additional
+##          The color to set the  given channelkey to. If the additional
 ##          argument <period>  is given,  the beacon will  pulsate the
 ##          given   color   with   the   specified   periodicity   (in
 ##          milliseconds).
@@ -57,11 +57,11 @@
 attempt_read_config() {
     if [ -r "$1" ] ; then
         # shellcheck disable=SC1117
-        READ_SYSTEMID=$(awk -F"[\t ]*=[\t ]*" '$1 = /systemid/ { print $2 }' "$1")
+        READ_CHANNELKEY=$(awk -F"[\t ]*=[\t ]*" '$1 = /channelkey/ { print $2 }' "$1")
         # shellcheck disable=SC1117
         READ_STATESRV=$(awk -F"[\t ]*=[\t ]*" '$1 = /state_server/ { print $2 }' "$1")
         
-        CONF_SYSTEMID="${READ_SYSTEMID:=$CONF_SYSTEMID}"
+        CONF_CHANNELKEY="${READ_CHANNELKEY:=$CONF_CHANNELKEY}"
         CONF_STATESRV="${READ_STATESRV:=$CONF_STATESRV}"
     fi
 }
@@ -104,9 +104,9 @@ usage_examples() {
     cat <<EOF
 Usage examples:
 
-     \$ ${PROGNAME} -i my.system.id 550055
+     \$ ${PROGNAME} -k my.channel.key 550055
      \$ ${PROGNAME} -s https://we.corp.eu/cilamp/api/v1 \\
-                    -i my.system.id FF0000,3000
+                    -k my.channel.key FF0000,3000
 
 
 Blame (most) bugs on: Martin Kjellstrand <martin.kjellstrand@madworx.se>.
@@ -117,7 +117,7 @@ EOF
 while [ "$#" -gt 0 ] ; do
     case "$1" in
         -c|--config-file) CONFIG_FILE="$2" ; shift 2 ;;
-        -i|--systemid) SYSTEMID="$2" ; shift 2 ;;
+        -k|--channelkey) CHANNELKEY="$2" ; shift 2 ;;
         -X|--extra) EXTRAS="${EXTRAS} $2" ; shift ;;
         --examples) usage_examples ; exit 0 ;;
         -h|--help) usage ; exit 0 ;;
@@ -136,28 +136,28 @@ if [ ! -z "${CONFIG_FILE}" ] ; then
     attempt_read_config "${CONFIG_FILE}"
 fi
 
-SYSTEMID="${SYSTEMID-${CONF_SYSTEMID}}"
+CHANNELKEY="${CHANNELKEY-${CONF_CHANNELKEY}}"
 STATE_SERVER="${STATE_SERVER-${CONF_STATESRV}}"
 
-# Sanity check on systemid:
-if [ -z "${SYSTEMID}" ] ; then
-    echo "Error: Systemid must be set." 1>&2
+# Sanity check on channelkey:
+if [ -z "${CHANNELKEY}" ] ; then
+    echo "Error: channelkey must be set." 1>&2
     exit 1
 else
     # shellcheck disable=SC2001
-    REST="$(echo "${SYSTEMID}" | sed 's#[a-zA-Z0-9_-]##g')"
+    REST="$(echo "${CHANNELKEY}" | sed 's#[a-zA-Z0-9_-]##g')"
     if [ ! -z "${REST}" ] ; then
-        echo "Error: Systemid contains invalid characters. \`${REST}'" 1>&2
+        echo "Error: Channelkey contains invalid characters. \`${REST}'" 1>&2
         exit 1
     fi
 fi
 
-SYSTEMID="${SYSTEMID-${CONF_SYSTEMID}}"
+CHANNELKEY="${CHANNELKEY-${CONF_CHANNELKEY}}"
 STATE_SERVER="${STATE_SERVER-${CONF_STATESRV}}"
 
-# Sanity check on systemid:
-if [ -z "${SYSTEMID}" ] ; then
-    echo "Error: Systemid must be set."
+# Sanity check on channelkey:
+if [ -z "${CHANNELKEY}" ] ; then
+    echo "Error: Channelkey must be set."
     usage
     exit 1
 fi
@@ -193,10 +193,10 @@ COLOR="${COLOR%%,*}"
 
 # shellcheck disable=SC2001
 if [ ! -z "$(echo "${COLOR}" | sed 's#[a-zA-Z0-9_-]##g')" ] ; then
-    echo "Error: color contains invalid characters." 1>&2
+    echo "Error: Color contains invalid characters." 1>&2
     usage
     exit 1
 fi
 
 
-curl -F "color=${COLOR}" -F "period=${PERIOD}" "${STATE_SERVER}/${SYSTEMID}/"
+curl -F "color=${COLOR}" -F "period=${PERIOD}" "${STATE_SERVER}/${CHANNELKEY}/"
