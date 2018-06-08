@@ -141,7 +141,7 @@ STATE_SERVER="${STATE_SERVER-${CONF_STATESRV}}"
 
 # Sanity check on channelkey:
 if [ -z "${CHANNELKEY}" ] ; then
-    echo "Error: channelkey must be set." 1>&2
+    echo "Error: Channelkey must be set." 1>&2
     exit 1
 else
     # shellcheck disable=SC2001
@@ -154,13 +154,6 @@ fi
 
 CHANNELKEY="${CHANNELKEY-${CONF_CHANNELKEY}}"
 STATE_SERVER="${STATE_SERVER-${CONF_STATESRV}}"
-
-# Sanity check on channelkey:
-if [ -z "${CHANNELKEY}" ] ; then
-    echo "Error: Channelkey must be set."
-    usage
-    exit 1
-fi
 
 # Sanity check for 'curl' binary.
 which curl >/dev/null 2>&1 || (
