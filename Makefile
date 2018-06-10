@@ -14,6 +14,9 @@ tests:
 clean:
 	rm -rf .output.* .conf *~ .*~ .\#* \#*\#
 
+setup_tests:
+	sudo apt install shellcheck bats curl posh dash ksh mksh zsh
+
 print-%: ; @echo $($*)
 
 .PHONY: tests clean print-%
