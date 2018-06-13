@@ -4,6 +4,7 @@ TEST_SHELLS := posh bash dash ksh mksh zsh
 
 tests:
 	shellcheck -s ksh beaconcli.sh
+	shellcheck -s ksh dist/*.sh
 	for SHELL in $(TEST_SHELLS) ; do \
 	  echo "Running test suite using shell \`$${SHELL}'..." ; \
 	  ! $$SHELL beaconcli.sh > .output.$$SHELL 2>&1 ; \
