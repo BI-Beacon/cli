@@ -11,13 +11,14 @@ if [ "${TRAVIS_BRANCH}" == "master" ] ; then
     git config --global user.email "travis@travis-ci.org"
     git config --global user.name  "Travis CI"
     
-    git clone -b artifacts https://${GH_TOKEN}@github.com/BI-Beacon/build-artifacts.git "${TMPDR}"
+    git clone -b artifacts "https://${GH_TOKEN}@github.com/BI-Beacon/build-artifacts.git" "${TMPDR}"
 
     install -m 755 dist/install-sh "${TMPDR}/cli"
     install -m 755 beaconcli.sh    "${TMPDR}/cli/beaconcli"
 
-    cd "${TMPDR}"
-    find . -type f -not -path "*/.git*" -not -name SHA1SUMS | xargs sha1sum | sort -k+2 > SHA1SUMS
+    cd "${TMPDR}" || exit 1
+    # shellcheck disable=SC2094
+    find . -type f -not -path "*/.git*" -not -name SHA1SUMS -print0 | xargs -r0 sha1sum | sort -k+2 > SHA1SUMS
     git add cli/install-sh cli/beaconcli SHA1SUMS
     git commit -m 'Automated build' .
     git push
