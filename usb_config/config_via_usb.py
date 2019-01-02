@@ -1,15 +1,12 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-import serial
 import sys
 if sys.version_info[0] < 3:
     print("This script assumes Python 3. Exiting.")
     sys.exit(-1)
 import serial
 
-PORT = '/dev/ttyUSB0'
+USBPORT = '/dev/ttyUSB0'
 
 
 def write_command(port_string, text):
@@ -23,11 +20,11 @@ def write_command(port_string, text):
 
 
 def print_manual():
-    print("Usage: config_via_usb.py <SSID> <PASSWORD> <SYSTEMID>")
-    print("This will send configuration specified at command line")
-    print("to BI-Beacon connected to port %s." % PORT)
-    print("This will save credentials SSID+PASSWORD and systemid")
-    print("on the device and reboot it.")
+    print("Usage: config_via_usb.py <SSID> <PASSWORD> <CHANNELKEY> [STATESERVER] [PORT]")
+    print("\tThis will send given configuration to BI-Beacon connected to")
+    print("\t%s and then reboot it." % USBPORT)
+    print("\tThe STATESERVER and PORT parameters will default to api.cilamp.se and 4040")
+    print("\tif not specified.")
 
 
 def print_outtro():
@@ -36,16 +33,28 @@ def print_outtro():
     print("not supported.")
 
 
-def configure_via_usb(ssid, password, systemid):
-    command = 'config %s %s %s\n' % (ssid, password, systemid)
+def configure_via_usb(ssid, password, channelkey, stateserver, port):
+    command = 'config %s %s %s %s %s\n' % (ssid, password, channelkey, stateserver, port)
     print("Sending command: " + command)
-    write_command(PORT, command)
+    write_command(USBPORT, command)
+
+
+def run(params):
+    stateserver = 'api.cilamp.se'
+    port = 4040
+    num_params = len(params)
+
+    if num_params == 3:
+        (ssid, password, channelkey) = params
+    elif num_params == 5:
+        (ssid, password, channelkey, stateserver, port) = params
+    else:
+        print_manual()
+        return
+
+    configure_via_usb(ssid, password, channelkey, stateserver, port)
+    print_outtro()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 4:
-        (ssid, password, systemid) = sys.argv[1:]
-        configure_via_usb(ssid, password, systemid)
-        print_outtro()
-    else:
-        print_manual()
+    run(sys.argv[1:])
