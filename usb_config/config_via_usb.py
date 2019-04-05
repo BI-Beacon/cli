@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import time
 if sys.version_info[0] < 3:
     print("This script assumes Python 3. Exiting.")
     sys.exit(-1)
@@ -16,6 +17,7 @@ def write_command(port_string, text):
     ser.open()
     values = bytearray(text.encode('utf-8'))
     ser.write(values)
+    time.sleep(1)
     ser.close()
 
 
@@ -34,9 +36,15 @@ def print_outtro():
 
 
 def configure_via_usb(ssid, password, channelkey, stateserver, port):
-    command = 'config %s %s %s %s %s\n' % (ssid, password, channelkey, stateserver, port)
+    command = 'config %s %s %s %s %s\r' % (ssid, password, channelkey, stateserver, port)
     print("Sending command: " + command)
-    write_command(USBPORT, command)
+    for i in range(100):
+        port = 'COM' + str(i) + ':'
+        try:
+            write_command(port, command)
+            print("Writing to " + port)
+        except serial.serialutil.SerialException:
+            pass
 
 
 def run(params):
